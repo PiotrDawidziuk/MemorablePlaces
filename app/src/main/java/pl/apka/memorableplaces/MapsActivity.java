@@ -24,6 +24,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -141,6 +143,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (address.equals("")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            address += sdf.format(new Date());
         }
 
         mMap.addMarker(new MarkerOptions().position(latLng).title(address));
