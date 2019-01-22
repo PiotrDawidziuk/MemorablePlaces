@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -28,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static pl.apka.memorableplaces.MainActivity.places;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
@@ -73,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
 
         mMap.setOnMapLongClickListener(this);
@@ -115,6 +119,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
             }
+        } else {
+            Location placeLocation = new Location(LocationManager.GPS_PROVIDER);
+            placeLocation.setLatitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).latitude);
+            placeLocation.setLongitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).longitude);
+
+            centerMapOnLocation(placeLocation, places.get(intent.getIntExtra("placeNumber",0)));
         }
 
     }
@@ -146,10 +156,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         if (address.equals("")) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm yyyy-MM-dd");
             address += sdf.format(new Date());
         }
 
         mMap.addMarker(new MarkerOptions().position(latLng).title(address));
+
+        places.add(address);
+        MainActivity.locations.add(latLng);
+
+        MainActivity.arrayAdapter.notifyDataSetChanged();
+
+        Toast.makeText(this, "Location saved: "+address, Toast.LENGTH_LONG).show();
+
+        for (int i =0; i < MainActivity.places.size(); i++) {
+        Log.i("MIEJSCE", MainActivity.places.get(i));
+        }
+
     }
 }
+
+// TO MOJE
