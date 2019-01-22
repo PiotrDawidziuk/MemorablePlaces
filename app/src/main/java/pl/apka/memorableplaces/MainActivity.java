@@ -1,5 +1,6 @@
 package pl.apka.memorableplaces;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -30,7 +31,12 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, Integer.toString(position), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+
+                intent.putExtra("placeNumber", position);
+
+                startActivity(intent);
+
             }
         });
 
