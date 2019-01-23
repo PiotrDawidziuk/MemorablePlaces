@@ -3,6 +3,7 @@ package pl.apka.memorableplaces;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
             //mMap.clear();
             mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 11));
         }
     }
 
@@ -53,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,500,0, locationListener);
 
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 centerMapOnLocation(lastKnownLocation,"Your location");
@@ -167,12 +169,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         MainActivity.arrayAdapter.notifyDataSetChanged();
 
-        Toast.makeText(this, "Location saved: "+address, Toast.LENGTH_LONG).show();
+        SharedPreferences sharedPreferences = this.getSharedPreferences("pl.apka.memorableplaces",Context.MODE_PRIVATE);
 
-        for (int i =0; i < MainActivity.places.size(); i++) {
-        Log.i("MIEJSCE", MainActivity.places.get(i));
+        try {
+
+            ArrayList<String> latitudes = new ArrayList<>();
+            ArrayList<String> longitudes = new ArrayList<>();
+
+            for (LatLng coord : MainActivity.locations) {
+                latitudes.add(Double.toString(coord.latitude));
+                longitudes.add(Double.toString(coord.longitude));
+            }
+
+            sharedPreferences.edit().putString("places",ObjectSerializer.serialize(MainActivity.places)).apply();
+
+            sharedPreferences.edit().putString("lats",ObjectSerializer.serialize(latitudes)).apply();
+            sharedPreferences.edit().putString("longs",ObjectSerializer.serialize(longitudes)).apply();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
+        Toast.makeText(this, "Location saved: "+address, Toast.LENGTH_LONG).show();
     }
 }
 
