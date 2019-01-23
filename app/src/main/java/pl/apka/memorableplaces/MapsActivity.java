@@ -32,22 +32,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static pl.apka.memorableplaces.MainActivity.places;
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     LocationManager locationManager;
     LocationListener locationListener;
+    private GoogleMap mMap;
+
 
     public void centerMapOnLocation(Location location, String title){
 
         if (location != null) {
             LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            //mMap.clear();
+            mMap.clear();
             mMap.addMarker(new MarkerOptions().position(userLocation).title(title));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 11));
         }
     }
+    
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -64,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +114,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0, locationListener);
-
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 centerMapOnLocation(lastKnownLocation,"Your location");
 
@@ -126,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             placeLocation.setLatitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).latitude);
             placeLocation.setLongitude(MainActivity.locations.get(intent.getIntExtra("placeNumber",0)).longitude);
 
-            centerMapOnLocation(placeLocation, places.get(intent.getIntExtra("placeNumber",0)));
+            centerMapOnLocation(placeLocation, MainActivity.places.get(intent.getIntExtra("placeNumber",0)));
         }
 
     }
@@ -156,15 +155,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }catch (Exception e) {
             e.printStackTrace();
         }
+        
 
         if (address.equals("")) {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm yyyy-MM-dd");
             address += sdf.format(new Date());
         }
+        
 
         mMap.addMarker(new MarkerOptions().position(latLng).title(address));
 
-        places.add(address);
+        MainActivity.places.add(address);
         MainActivity.locations.add(latLng);
 
         MainActivity.arrayAdapter.notifyDataSetChanged();
@@ -190,7 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         Toast.makeText(this, "Location saved: "+address, Toast.LENGTH_LONG).show();
     }
 }
